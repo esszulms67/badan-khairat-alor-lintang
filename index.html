@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#b00020">
+<link rel="manifest" href="manifest.json">
+<title>Badan Khairat Kematian Kg. Alor Lintang</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#222}
+header{background:#111;color:#fff;text-align:center;padding:18px 12px}header img{width:82px;height:82px;object-fit:contain;background:#fff;border-radius:14px;padding:3px}
+h1{font-size:19px;margin:8px 0 3px}header p{margin:0;font-size:13px}
+main{max-width:920px;margin:auto;padding:14px}.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px #0001}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.full{grid-column:1/-1}
+label{font-size:12px;font-weight:bold;display:block;margin-bottom:4px}input,select,textarea{width:100%;padding:11px;border:1px solid #ccc;border-radius:9px;font-size:15px}textarea{min-height:70px}
+button{border:0;border-radius:10px;padding:11px 14px;font-weight:bold;font-size:14px;cursor:pointer}.red{background:#b00020;color:#fff}.dark{background:#222;color:#fff}.light{background:#eee}.danger{background:#b3261e;color:#fff}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.menu button{min-height:58px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{text-align:center;background:#fafafa;border-radius:12px;padding:12px}.stat b{display:block;font-size:24px;color:#b00020}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.hidden{display:none}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left;white-space:nowrap}th{background:#f3e5e8}
+.notice{padding:10px;border-radius:10px;background:#fff4f5;border-left:4px solid #b00020;font-size:13px}.small{font-size:12px;color:#666}
+.login{max-width:430px;margin:45px auto}.login img{display:block;margin:auto;width:110px;height:110px;object-fit:contain}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:1fr 1fr}.menu{grid-template-columns:1fr 1fr}}
+@media print{.no-print{display:none!important}body{background:#fff}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div id="loginPage" class="login card">
+<img src="logo.png"><h2 style="text-align:center">Badan Khairat Kematian Kg. Alor Lintang</h2>
+<p style="text-align:center" class="small">Sistem Pengurusan Keahlian</p>
+<label>Kata Laluan</label><input id="password" type="password" placeholder="Masukkan kata laluan">
+<button class="red" style="width:100%;margin-top:10px" onclick="login()">Log Masuk</button>
+<p id="loginMsg" class="small" style="text-align:center"></p>
+</div>
+
+<div id="app" class="hidden">
+<header><img src="logo.png"><h1>BADAN KHAIRAT KEMATIAN</h1><p>KG. ALOR LINTANG, BESUT</p></header>
+<main>
+<section class="card">
+<div class="stats"><div class="stat"><b id="total">0</b>Jumlah Ahli</div><div class="stat"><b id="alive">0</b>Masih Hidup</div><div class="stat"><b id="dead">0</b>Sudah Meninggal</div></div>
+</section>
+<section class="card no-print"><div class="menu">
+<button class="red" onclick="show('form')">➕ Tambah Ahli</button><button class="dark" onclick="show('list')">👥 Rekod Ahli</button>
+<button class="light" onclick="focusSearch()">🔍 Carian Ahli</button><button class="light" onclick="window.print()">🖨️ Cetak</button>
+</div></section>
+
+<section id="form" class="card">
+<h2 id="formTitle">Tambah Rekod Ahli</h2>
+<form id="frm"><div class="grid">
+<div><label>Nama Ahli *</label><input id="nama" required></div>
+<div><label>Nombor Keahlian</label><input id="noAhli" readonly placeholder="Dijana automatik"></div>
+<div><label>Nombor Kad Pengenalan *</label><input id="kp" required inputmode="numeric"></div>
+<div><label>Tarikh Lahir</label><input id="lahir" type="date"></div>
+<div><label>Umur pada Tarikh Permohonan</label><input id="umur" type="number" min="0"></div>
+<div><label>Nombor Telefon</label><input id="telefon" type="tel"></div>
+<div class="full"><label>Alamat Tetap</label><textarea id="alamat"></textarea></div>
+<div><label>Poskod</label><input id="poskod"></div>
+<div><label>Status Sekarang</label><select id="status"><option>Masih Hidup</option><option>Sudah Meninggal</option></select></div>
+<div><label>Nama Waris yang Boleh Dihubungi</label><input id="waris"></div>
+<div><label>Hubungan dengan Waris</label><input id="hubungan"></div>
+<div><label>Telefon Waris</label><input id="telefonWaris" type="tel"></div>
+</div><div class="actions"><button class="red">💾 Simpan Rekod</button><button type="button" class="light" onclick="resetForm()">Kosongkan</button></div></form>
+</section>
+
+<section id="list" class="card hidden">
+<h2>Rekod Keahlian</h2><input id="search" placeholder="Cari nama / no. keahlian / kad pengenalan..." oninput="render()" style="width:100%;margin-bottom:10px">
+<div class="actions no-print"><button class="dark" onclick="sync()">☁️ Selaraskan Google Sheets</button><button class="light" onclick="backup()">💾 Sandaran</button><button class="light" onclick="document.getElementById('restore').click()">↩ Pulihkan</button><input id="restore" type="file" accept=".json" hidden onchange="restore(event)"></div>
+<div class="tablewrap"><table><thead><tr><th>No.</th><th>Nama</th><th>Keahlian</th><th>Kad Pengenalan</th><th>Status</th><th class="no-print">Tindakan</th></tr></thead><tbody id="rows"></tbody></table></div>
+</section>
+
+<section class="card no-print">
+<h3>Tetapan Sambungan</h3>
+<p class="small">Masukkan URL aplikasi web Google Apps Script selepas ia diterbitkan. Jangan kongsi URL ini kepada orang awam.</p>
+<input id="endpoint" placeholder="URL Google Apps Script Web App">
+<button class="dark" style="margin-top:8px" onclick="saveEndpoint()">Simpan URL</button>
+<button class="light" style="margin-top:8px" onclick="logout()">Log Keluar</button>
+</section>
+</main></div>
+
+<script>
+const KEY='BKK_ALOR_LINTANG_V2', EP='BKK_ENDPOINT';
+let data=JSON.parse(localStorage.getItem(KEY)||'[]'), edit=-1;
+const fields=['nama','noAhli','kp','lahir','umur','telefon','alamat','poskod','status','waris','hubungan','telefonWaris'];
+const $=id=>document.getElementById(id);
+
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+const PASS_KEY='BKK_PASS_HASH';
+if(!localStorage.getItem(PASS_KEY))localStorage.setItem(PASS_KEY,hash('BKK2026'));
+
+function login(){if(hash($('password').value)===localStorage.getItem(PASS_KEY)){sessionStorage.setItem('BKK_LOGIN','1');$('loginPage').classList.add('hidden');$('app').classList.remove('hidden');load()}else $('loginMsg').textContent='Kata laluan tidak betul.'}
+function logout(){sessionStorage.removeItem('BKK_LOGIN');location.reload()}
+function load(){ $('endpoint').value=localStorage.getItem(EP)||'';render();show('form') }
+if(sessionStorage.getItem('BKK_LOGIN')==='1'){ $('loginPage').classList.add('hidden');$('app').classList.remove('hidden');load() }
+
+function nextNo(){let nums=data.map(x=>parseInt(String(x.noAhli||'').replace(/\D/g,''),10)).filter(Number.isFinite);let n=(nums.length?Math.max(...nums):0)+1;return 'BKK-'+String(n).padStart(4,'0')}
+function show(id){$('form').classList.toggle('hidden',id!=='form');$('list').classList.toggle('hidden',id!=='list');if(id==='form'&&edit<0)$('noAhli').value=nextNo();if(id==='list')render()}
+function resetForm(){edit=-1;$('frm').reset();$('formTitle').textContent='Tambah Rekod Ahli';$('noAhli').value=nextNo()}
+$('frm').onsubmit=e=>{e.preventDefault();let o={};fields.forEach(f=>o[f]=$(f).value);if(edit<0){if(data.some(x=>x.kp===o.kp)){alert('Nombor kad pengenalan ini telah direkodkan.');return}data.push(o)}else data[edit]=o;localStorage.setItem(KEY,JSON.stringify(data));alert('Rekod berjaya disimpan.');resetForm();show('list')};
+function render(){let q=($('search')?.value||'').toLowerCase();let arr=data.map((o,i)=>({o,i})).filter(x=>Object.values(x.o).join(' ').toLowerCase().includes(q));$('rows').innerHTML=arr.map((x,n)=>`<tr><td>${n+1}</td><td>${esc(x.o.nama)}</td><td>${esc(x.o.noAhli)}</td><td>${esc(x.o.kp)}</td><td>${esc(x.o.status)}</td><td class="no-print"><button class="light" onclick="editRec(${x.i})">Edit</button> <button class="danger" onclick="delRec(${x.i})">Padam</button></td></tr>`).join('');$('total').textContent=data.length;$('alive').textContent=data.filter(x=>x.status==='Masih Hidup').length;$('dead').textContent=data.filter(x=>x.status==='Sudah Meninggal').length}
+function editRec(i){edit=i;let o=data[i];fields.forEach(f=>$(f).value=o[f]||'');$('formTitle').textContent='Kemaskini Rekod Ahli';show('form');scrollTo({top:0,behavior:'smooth'})}
+function delRec(i){if(confirm('Padam rekod ini?')){data.splice(i,1);localStorage.setItem(KEY,JSON.stringify(data));render()}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function focusSearch(){show('list');setTimeout(()=>$('search').focus(),100)}
+function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='sandaran_BKK_Alor_Lintang.json';a.click()}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x))throw 1;data=x;localStorage.setItem(KEY,JSON.stringify(data));render();alert('Data berjaya dipulihkan.')}catch{alert('Fail sandaran tidak sah.')}};r.readAsText(f)}
+function saveEndpoint(){localStorage.setItem(EP,$('endpoint').value.trim());alert('URL disimpan pada peranti ini.')}
+async function sync(){let ep=localStorage.getItem(EP);if(!ep){alert('Masukkan URL Google Apps Script terlebih dahulu.');return}try{let r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'replaceAll',records:data})});let x=await r.json();alert(x.message||'Penyelarasan selesai.')}catch(e){alert('Penyelarasan gagal. Semak URL dan tetapan Google Apps Script.')}}
+
+</script></body></html>
